@@ -1,63 +1,22 @@
-import React, { useEffect, useState } from 'react';
-
+import React, { useContext, useState } from 'react';
+import './searchBar.scss';
 // components
 import Loader from '../Loader/Loader';
+import { AppContext } from '../context/AppContext';
 
 function SearchBar() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [cities, setCities] = useState('');
+
+  const { cities, getCityInfo } = useContext(AppContext);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
-  // get cities from meteo API
-  const getCities = async () => {
-    try {
-      const response = await fetch('/v1/places');
-
-      if (!response.ok) {
-        throw new Error(`Can't fetch city list`);
-      }
-
-      const cities = await response.json();
-
-      let citiesNames = [];
-
-      for (let city of cities) {
-        citiesNames.push({ name: city.name, cityCode: city.code });
-      }
-      // set city names
-      setCities(citiesNames);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  // get city info using city code
-  const getCityInfo = async (code) => {
-    try {
-      const response = await fetch(`/v1/places/${code}/forecasts/long-term`);
-
-      if (!response.ok) {
-        throw new Error(`Couldn't get city info`);
-      }
-
-      const cityInfo = await response.json();
-
-      // set city names
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-  useEffect(() => {
-    getCities();
-  }, []);
-
   return (
-    <div className="dropdown searchBar customBorder p-2">
+    <div className="searchBar customBorder p-2">
       <button
-        className="btn btn-secondary dropdown-toggle"
+        className="btn btn-secondary dropdown-toggle dropdown-btn"
         type="button"
         id="dropdownMenu2"
         data-bs-toggle="dropdown"
@@ -80,7 +39,11 @@ function SearchBar() {
             .slice(0, 10)
             .map((city, index) => (
               <li key={index}>
-                <button className="dropdown-item" type="button">
+                <button
+                  className="dropdown-item"
+                  type="button"
+                  onClick={() => getCityInfo(city.cityCode)}
+                >
                   {city.name}
                 </button>
               </li>
